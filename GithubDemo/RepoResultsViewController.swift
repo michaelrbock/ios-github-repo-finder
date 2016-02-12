@@ -14,6 +14,7 @@ class RepoResultsViewController: UIViewController {
 
     var searchBar: UISearchBar!
     var searchSettings = GithubRepoSearchSettings()
+    var needToUpdate = true
 
     @IBOutlet weak var tableView: UITableView!
 
@@ -33,9 +34,13 @@ class RepoResultsViewController: UIViewController {
         tableView.dataSource = self
         tableView.rowHeight = UITableViewAutomaticDimension
         tableView.estimatedRowHeight = 150
+    }
 
-        // Perform the first search when the view controller first loads
-        doSearch()
+    override func viewWillAppear(animated: Bool) {
+        if needToUpdate {
+            doSearch()
+            needToUpdate = false
+        }
     }
 
     // Perform the search.
@@ -59,6 +64,14 @@ class RepoResultsViewController: UIViewController {
             }, error: { (error) -> Void in
                 print(error)
         })
+    }
+
+    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+        let destinationViewController = segue.destinationViewController as! UINavigationController
+        let settingsViewController = destinationViewController.topViewController as! SettingsViewController
+
+        settingsViewController.repoResultsViewController = self
+        settingsViewController.searchSettings = searchSettings
     }
 }
 
